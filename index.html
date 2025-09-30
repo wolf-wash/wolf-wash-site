@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>wolf‑wash | Laundry Pickup & Delivery</title>
-  <meta name="description" content="Clayton & Raleigh area wash‑and‑fold. Simple pricing. Free pickup for subscribers.">
+  <title>wolf-wash | Laundry Pickup & Delivery</title>
+  <meta name="description" content="NC State campus laundry pickup and delivery. Simple pricing by the bag.">
   <link rel="preconnect" href="https://www.paypal.com" crossorigin>
   <style>
     :root{
-      --bg:#0f172a; /* slate-900 */
-      --fg:#e5e7eb; /* gray-200 */
-      --muted:#94a3b8; /* slate-400 */
-      --brand:#22c55e; /* green-500 */
-      --brand-dk:#16a34a; /* green-600 */
-      --card:#111827; /* gray-900 */
-      --accent:#38bdf8; /* sky-400 */
+      --bg:#0f172a;
+      --fg:#e5e7eb;
+      --muted:#94a3b8;
+      --brand:#CC0000; /* NC State red */
+      --brand-dk:#A00000; /* darker red */
+      --card:#111827;
+      --accent:#ffffff; /* white accents */
     }
     *{box-sizing:border-box}
     html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--fg)}
@@ -31,30 +31,22 @@
     .hero h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:0 0 8px}
     .subtitle{color:var(--muted);font-size:clamp(14px,2.2vw,18px)}
     .card{background:var(--card);border:1px solid #1f2937;border-radius:18px;padding:18px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--brand);color:#06110b;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
     .btn:hover{background:var(--brand-dk)}
     .section-title{font-size:22px;margin:8px 0 12px}
     .two{grid-template-columns:repeat(2, minmax(0,1fr))}
     @media (max-width:800px){.two{grid-template-columns:1fr}}
     .price{font-size:36px;font-weight:900}
     .muted{color:var(--muted)}
-    input,select,textarea{width:100%;background:#0b1222;border:1px solid #1f2937;color:var(--fg);border-radius:12px;padding:12px}
-    label{font-size:14px;color:var(--muted)}
-    .row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
-    @media (max-width:700px){.row{grid-template-columns:1fr}}
-    footer{border-top:1px solid #1f2937;margin-top:36px;padding:24px 0;color:var(--muted);font-size:14px}
-    .badge{display:inline-flex;align-items:center;gap:6px;border:1px dashed #334155;border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
-    .ok{color:#10b981}
   </style>
-  <!-- PayPal JS SDK: replace YOUR_CLIENT_ID with your live client id when ready -->
   <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD" defer></script>
 </head>
 <body>
   <header>
     <div class="container">
       <nav>
-        <div class="logo"><span class="dot"></span> wolf‑wash</div>
-        <div class="pill">Clayton & Raleigh pickup • Mon–Sat</div>
+        <div class="logo"><span class="dot"></span> wolf-wash</div>
+        <div class="pill">NC State campus pickup • Fridays</div>
       </nav>
     </div>
   </header>
@@ -63,18 +55,18 @@
     <section class="hero grid two">
       <div>
         <h1>Laundry pickup & delivery — priced by the bag.</h1>
-        <p class="subtitle">Flat‑rate wash‑and‑fold. We pick up, wash, dry, fold, and drop back at your door. No hidden fees. Cancel anytime.</p>
+        <p class="subtitle">Flat-rate wash-and-fold. We provide the bag. No hidden fees. Cancel anytime.</p>
         <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
           <a href="#order" class="btn">Schedule a pickup</a>
-          <a class="badge" href="#pricing">$<span id="bagPricePreview">35</span>/bag • first pickup 10% off</a>
+          <a class="badge" href="#pricing">$<span id="bagPricePreview">35</span>/bag • roommate group rates</a>
         </div>
       </div>
       <div class="card">
         <h3 class="section-title">How it works</h3>
         <ol class="muted" style="line-height:1.7;margin:0;padding-left:18px">
-          <li>Choose one‑time or weekly plan.</li>
-          <li>We text ETA, pick up, then wash‑and‑fold.</li>
-          <li>Delivery next day (same‑day available).</li>
+          <li>Choose one-time or weekly plan.</li>
+          <li>Pickup on <strong>Friday evening</strong>.</li>
+          <li>Delivery on <strong>Sunday</strong> — ready for your next week of classes.</li>
         </ol>
         <div style="margin-top:12px" class="badge"><span class="ok">✓</span> Secure PayPal checkout</div>
       </div>
@@ -84,170 +76,55 @@
       <div class="card">
         <h3 class="section-title">Simple pricing</h3>
         <div class="price">$<span id="bagPrice">35</span><span class="muted" style="font-size:16px">/bag</span></div>
-        <p class="muted">One standard 13‑gal kitchen bag, filled to tie. Bedding and large items quoted separately.</p>
+        <p class="muted">We provide the bag. Bedding and large items quoted separately.</p>
         <ul class="muted" style="line-height:1.7">
-          <li>Next‑day delivery included</li>
-          <li>Same‑day add‑on available at checkout</li>
-          <li>No contracts for one‑time orders</li>
+          <li>Weekly Friday pickup, Sunday delivery</li>
+          <li>No same-day or next-day options</li>
+          <li>Washed cold as a single bag (no mixing with other customers)</li>
         </ul>
       </div>
       <div class="card">
-        <h3 class="section-title">Weekly plan (optional)</h3>
-        <p class="muted">Lock in convenience and save.</p>
+        <h3 class="section-title">Roommate group rate</h3>
+        <p class="muted">Same address & time. Great for dorms and shared apartments.</p>
+        <div class="price">$30<span class="muted" style="font-size:16px">/bag</span></div>
         <ul class="muted" style="line-height:1.7">
-          <li>First pickup 10% off</li>
-          <li>Free pickup on plan days</li>
-          <li>Pause or cancel anytime</li>
+          <li><strong>3+ bags</strong> in one pickup</li>
+          <li>Add more bags at the same $30/bag</li>
+          <li>Friday pickup • Sunday delivery</li>
         </ul>
-        <!-- Replace with your real PayPal subscription link or plan button later -->
-        <a class="btn" id="subscribeBtn" href="#order" title="Create plan in PayPal later and swap this link">Get weekly pickup</a>
       </div>
-    </section>
-
-    <section id="order" class="card" style="margin-top:20px">
-      <h3 class="section-title">Schedule a pickup</h3>
-      <form id="orderForm">
-        <div class="row">
-          <div>
-            <label for="name">Name</label>
-            <input id="name" required placeholder="Full name" />
-          </div>
-          <div>
-            <label for="email">Email</label>
-            <input id="email" type="email" required placeholder="you@wolf-wash.com" />
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label for="phone">Phone</label>
-            <input id="phone" inputmode="tel" placeholder="(555) 555‑5555" />
-          </div>
-          <div>
-            <label for="bags">Number of bags</label>
-            <select id="bags">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label for="speed">Turnaround</label>
-            <select id="speed">
-              <option value="standard">Next‑day (included)</option>
-              <option value="same">Same‑day (+$10 flat)</option>
-            </select>
-          </div>
-          <div>
-            <label for="tip">Tip (optional)</label>
-            <select id="tip">
-              <option value="0">$0</option>
-              <option value="3">$3</option>
-              <option value="5">$5</option>
-              <option value="8">$8</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin:12px 0">
-          <label for="addr">Pickup address</label>
-          <textarea id="addr" rows="2" placeholder="Street, city, zip"></textarea>
-        </div>
-        <div class="card" style="background:#0b1222">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-            <div>
-              <div class="muted">Total due today</div>
-              <div class="price" style="font-size:28px">$<span id="total">35.00</span></div>
-            </div>
-            <div id="paypal-button-container"></div>
-          </div>
-          <div class="muted" style="font-size:12px;margin-top:6px">Secure checkout is powered by PayPal. You’ll receive an email receipt and we’ll text your pickup ETA.</div>
-        </div>
-      </form>
     </section>
 
     <section class="grid two" style="margin-top:20px">
       <div class="card">
         <h3 class="section-title">FAQ</h3>
-        <p><strong>What counts as a bag?</strong><br><span class="muted">A regular 13‑gallon kitchen bag, filled to tie. No overstuffing to the point it can’t close 🙂</span></p>
         <p><strong>Do you handle bedding?</strong><br><span class="muted">Yes, priced separately after inspection.</span></p>
-        <p><strong>Where do you serve?</strong><br><span class="muted">Clayton, Garner, Smithfield, SE Raleigh. Other areas by request.</span></p>
+        <p><strong>Where do you serve?</strong><br><span class="muted">NC State students (on/near campus) to start.</span></p>
       </div>
       <div class="card">
         <h3 class="section-title">Contact</h3>
-        <p class="muted">Email: <a href="mailto:hello@wolf-wash.com">hello@wolf-wash.com</a><br>Text: <a href="tel:+19195551234">(919) 555‑1234</a></p>
-        <p class="muted">Hours: Mon–Sat 8a–6p</p>
+        <p class="muted">Email: <a href="mailto:wash@wolf-wash.com">wash@wolf-wash.com</a></p>
       </div>
     </section>
 
     <footer>
       <div class="container" style="padding:0">
-        © <span id="yr"></span> wolf‑wash • All rights reserved
+        © <span id="yr"></span> wolf-wash • All rights reserved
       </div>
     </footer>
   </main>
 
   <script>
-    // ---- Pricing logic ----
-    const BAG_PRICE = 35; // change to your price
-    const SAME_DAY_FEE = 10; // flat
-
+    const BAG_PRICE = 35;
     const fmt = (n)=> n.toFixed(2);
     const els = {
       bags: document.getElementById('bags'),
-      speed: document.getElementById('speed'),
-      tip: document.getElementById('tip'),
       total: document.getElementById('total'),
       bagPrice: document.getElementById('bagPrice'),
       bagPricePreview: document.getElementById('bagPricePreview'),
     };
-    els.bagPrice.textContent = BAG_PRICE;
-    els.bagPricePreview.textContent = BAG_PRICE;
-
-    function computeTotal(){
-      const bags = +els.bags.value;
-      const speed = els.speed.value;
-      const tip = +els.tip.value;
-      const base = bags * BAG_PRICE;
-      const rush = speed === 'same' ? SAME_DAY_FEE : 0;
-      return base + rush + tip;
-    }
-    function updateTotal(){ els.total.textContent = fmt(computeTotal()); }
-    ['change','input'].forEach(evt=>{
-      els.bags.addEventListener(evt, updateTotal);
-      els.speed.addEventListener(evt, updateTotal);
-      els.tip.addEventListener(evt, updateTotal);
-    });
-    updateTotal();
-
-    // ---- PayPal Smart Buttons ----
-    window.addEventListener('load', () => {
-      if (!window.paypal) return; // SDK not yet loaded or client id missing
-      paypal.Buttons({
-        style: { layout: 'horizontal', color: 'gold', shape: 'pill', label: 'pay' },
-        createOrder: function(data, actions){
-          const amount = computeTotal();
-          const description = `wolf‑wash pickup: ${document.getElementById('bags').value} bag(s)`;
-          return actions.order.create({
-            purchase_units: [{ amount: { value: fmt(amount) }, description }]
-          });
-        },
-        onApprove: function(data, actions){
-          return actions.order.capture().then(function(details){
-            alert(`Thanks, ${details.payer.name.given_name}! Your order is confirmed. We'll text your pickup ETA shortly.`);
-            // TODO: send order details to your backend or Google Sheet via webhook/zap
-          });
-        },
-        onError: function(err){
-          console.error(err);
-          alert('There was a problem with the payment. Please try again or contact us.');
-        }
-      }).render('#paypal-button-container');
-    });
-
-    // year in footer
+    if (els.bagPrice) els.bagPrice.textContent = BAG_PRICE;
+    if (els.bagPricePreview) els.bagPricePreview.textContent = BAG_PRICE;
     document.getElementById('yr').textContent = new Date().getFullYear();
   </script>
 </body>
