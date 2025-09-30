@@ -1,131 +1,410 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>wolf-wash | Laundry Pickup & Delivery</title>
-  <meta name="description" content="NC State campus laundry pickup and delivery. Simple pricing by the bag.">
-  <link rel="preconnect" href="https://www.paypal.com" crossorigin>
-  <style>
-    :root{
-      --bg:#0f172a;
-      --fg:#e5e7eb;
-      --muted:#94a3b8;
-      --brand:#CC0000; /* NC State red */
-      --brand-dk:#A00000; /* darker red */
-      --card:#111827;
-      --accent:#ffffff; /* white accents */
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--fg)}
-    a{color:var(--accent);text-decoration:none}
-    a:hover{text-decoration:underline}
-    .container{max-width:1000px;margin:0 auto;padding:24px}
-    header{position:sticky;top:0;background:linear-gradient(180deg, rgba(15,23,42,.95), rgba(15,23,42,.75));backdrop-filter: blur(8px);border-bottom:1px solid #1f2937;z-index:30}
-    nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
-    .logo .dot{width:12px;height:12px;background:var(--brand);border-radius:50%}
-    .pill{border:1px solid #1f2937;border-radius:999px;padding:8px 14px;background:#0b1222}
-    .grid{display:grid;gap:20px}
-    .hero{padding:56px 0 24px}
-    .hero h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:0 0 8px}
-    .subtitle{color:var(--muted);font-size:clamp(14px,2.2vw,18px)}
-    .card{background:var(--card);border:1px solid #1f2937;border-radius:18px;padding:18px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
-    .btn:hover{background:var(--brand-dk)}
-    .section-title{font-size:22px;margin:8px 0 12px}
-    .two{grid-template-columns:repeat(2, minmax(0,1fr))}
-    @media (max-width:800px){.two{grid-template-columns:1fr}}
-    .price{font-size:36px;font-weight:900}
-    .muted{color:var(--muted)}
-  </style>
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD" defer></script>
-</head>
-<body>
-  <header>
-    <div class="container">
-      <nav>
-        <div class="logo"><span class="dot"></span> wolf-wash</div>
-        <div class="pill">NC State campus pickup • Fridays</div>
-      </nav>
-    </div>
-  </header>
+import React from "react";
+import { CheckCircle2, CalendarDays, Truck, Users, Sparkles, Package, Snowflake, Info } from "lucide-react";
 
-  <main class="container">
-    <section class="hero grid two">
-      <div>
-        <h1>Laundry pickup & delivery — priced by the bag.</h1>
-        <p class="subtitle">Flat-rate wash-and-fold. We provide the bag. No hidden fees. Cancel anytime.</p>
-        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-          <a href="#order" class="btn">Schedule a pickup</a>
-          <a class="badge" href="#pricing">$<span id="bagPricePreview">35</span>/bag • roommate group rates</a>
+// Tailwind is available. This single-file component is ready to paste into a React app.
+// Edit copy right in-place; all sections are modular for quick tweaks.
+
+export default function StudentLaundrySite() {
+  const [route, setRoute] = React.useState<'home' | 'schedule'>('home');
+  const [flowStep, setFlowStep] = React.useState<'choose' | 'form' | 'payment'>('choose');
+  const [choice, setChoice] = React.useState<'single' | 'repeat' | 'group' | null>(null);
+
+  // Booking form state (shared across pages)
+  const [form, setForm] = React.useState({
+    name: '',
+    phone: '',
+    address: '',
+    window: '5–6:30pm',
+    roommatesBundle: false,
+    notes: '',
+    bags: 1,
+  });
+
+  // Simple mailto fallback so submissions email you without a backend yet
+  const handleEmailSubmit = () => {
+    const subject = encodeURIComponent(`New ${choice ?? 'single'} pickup request`);
+    const body = encodeURIComponent(
+      [
+        `Pickup type: ${choice ?? 'single'}`,
+        `Name: ${form.name}`,
+        `Phone: ${form.phone}`,
+        `Address: ${form.address}`,
+        `Friday window: ${form.window}`,
+        `Bags: ${form.bags}`,
+        `Roommates bundle: ${form.roommatesBundle ? 'Yes' : 'No'}`,
+        `Notes: ${form.notes || '—'}`,
+        `Source: website schedule flow`,
+      ].join('
+')
+    );
+    window.location.href = `mailto:hello@classreadylaundry.com?subject=${subject}&body=${body}`;
+  };
+
+  const Header = () => (
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+      <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Package className="w-6 h-6" aria-hidden />
+          <span className="font-bold tracking-tight">ClassReady Laundry</span>
+        </div>
+        <nav className="hidden md:flex items-center gap-6 text-sm">
+          <a href="#how" onClick={(e)=>{e.preventDefault(); setRoute('home');}} className="hover:text-slate-950">How it works</a>
+          <a href="#pricing" onClick={(e)=>{e.preventDefault(); setRoute('home');}} className="hover:text-slate-950">Pricing</a>
+          <a href="#faq" onClick={(e)=>{e.preventDefault(); setRoute('home');}} className="hover:text-slate-950">FAQ</a>
+          <a href="#contact" onClick={(e)=>{e.preventDefault(); setRoute('home');}} className="hover:text-slate-950">Contact</a>
+        </nav>
+        {route === 'home' ? (
+          <button
+            onClick={() => { setRoute('schedule'); setFlowStep('choose'); }}
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-900 hover:text-white transition"
+          >
+            Schedule Pickup
+          </button>
+        ) : (
+          <button
+            onClick={() => setRoute('home')}
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-900 hover:text-white transition"
+          >
+            ← Back to Home
+          </button>
+        )}
+      </div>
+    </header>
+  );
+
+  const Hero = () => (
+    <section className="bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-20 grid md:grid-cols-2 gap-10 items-center">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
+            Wash & Fold for Busy Students — <span className="underline decoration-wavy">Ready for Class</span>
+          </h1>
+          <p className="mt-4 text-lg text-slate-600">
+            We handle your laundry in our provided bag so you don’t have to. Cold-wash, dried and neatly folded — delivered Sunday so you’re set for the week.
+          </p>
+          <ul className="mt-6 space-y-2 text-slate-700">
+            <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5"/> Pickup Friday evening</li>
+            <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5"/> Delivery Sunday — ready for your next week of classes</li>
+            <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5"/> Our bag included with service</li>
+          </ul>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 text-white px-5 py-3 font-semibold hover:opacity-90" onClick={(e)=>{e.preventDefault(); setRoute('home')}}>See Pricing</a>
+            <a href="#how" className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 px-5 py-3 font-semibold hover:border-slate-900" onClick={(e)=>{e.preventDefault(); setRoute('home')}}>How it works</a>
+            <button className="inline-flex items-center gap-2 rounded-2xl border border-slate-900 px-5 py-3 font-semibold hover:bg-slate-900 hover:text-white" onClick={()=>{ setRoute('schedule'); setFlowStep('choose'); }}>Schedule Pickup</button>
+          </div>
+        </div>
+        <div className="md:pl-8">
+          <div className="rounded-3xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center gap-3">
+              <Snowflake className="w-6 h-6"/>
+              <h3 className="text-lg font-semibold">Cold-wash, Bag-as-a-Batch</h3>
+            </div>
+            <p className="mt-2 text-slate-600">
+              We wash your items <span className="font-semibold">together in your provided bag</span> on cold to protect colors and fabrics.
+            </p>
+            <div className="mt-4 flex items-start gap-3 text-sm text-slate-600">
+              <Info className="w-5 h-5 mt-0.5"/>
+              <p>
+                No bedding or oversized items (blankets, comforters, pillows, rugs) unless quoted separately — keeps pricing simple and fair.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="card">
-        <h3 class="section-title">How it works</h3>
-        <ol class="muted" style="line-height:1.7;margin:0;padding-left:18px">
-          <li>Choose one-time or weekly plan.</li>
-          <li>Pickup on <strong>Friday evening</strong>.</li>
-          <li>Delivery on <strong>Sunday</strong> — ready for your next week of classes.</li>
-        </ol>
-        <div style="margin-top:12px" class="badge"><span class="ok">✓</span> Secure PayPal checkout</div>
-      </div>
     </section>
+  );
 
-    <section id="pricing" class="grid two">
-      <div class="card">
-        <h3 class="section-title">Simple pricing</h3>
-        <div class="price">$<span id="bagPrice">35</span><span class="muted" style="font-size:16px">/bag</span></div>
-        <p class="muted">We provide the bag. Bedding and large items quoted separately.</p>
-        <ul class="muted" style="line-height:1.7">
-          <li>Weekly Friday pickup, Sunday delivery</li>
-          <li>No same-day or next-day options</li>
-          <li>Washed cold as a single bag (no mixing with other customers)</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 class="section-title">Roommate group rate</h3>
-        <p class="muted">Same address & time. Great for dorms and shared apartments.</p>
-        <div class="price">$30<span class="muted" style="font-size:16px">/bag</span></div>
-        <ul class="muted" style="line-height:1.7">
-          <li><strong>3+ bags</strong> in one pickup</li>
-          <li>Add more bags at the same $30/bag</li>
-          <li>Friday pickup • Sunday delivery</li>
-        </ul>
-      </div>
-    </section>
+  const HomePage = () => (
+    <>
+      <Hero />
+      {/* How it works */}
+      <section id="how" className="mx-auto max-w-6xl px-4 py-16">
+        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">How it works</h2>
+        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="rounded-3xl border border-slate-200 p-6">
+            <div className="flex items-center gap-3"><CalendarDays className="w-6 h-6"/><h3 className="font-semibold text-lg">1) Fill your bag</h3></div>
+            <p className="mt-2 text-slate-600">Use the ClassReady bag we provide. Toss in everyday wear — tees, jeans, socks, underwear, gym clothes.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 p-6">
+            <div className="flex items-center gap-3"><Truck className="w-6 h-6"/><h3 className="font-semibold text-lg">2) Friday pickup</h3></div>
+            <p className="mt-2 text-slate-600">We swing by <span className="font-semibold">Friday evening</span> for campus and nearby housing pickups.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 p-6">
+            <div className="flex items-center gap-3"><Sparkles className="w-6 h-6"/><h3 className="font-semibold text-lg">3) Sunday delivery</h3></div>
+            <p className="mt-2 text-slate-600">Fresh, folded, and returned <span className="font-semibold">Sunday</span> — so you’re <span className="font-semibold">ready for your next week of classes</span>.</p>
+          </div>
+        </div>
+      </section>
 
-    <section class="grid two" style="margin-top:20px">
-      <div class="card">
-        <h3 class="section-title">FAQ</h3>
-        <p><strong>Do you handle bedding?</strong><br><span class="muted">Yes, priced separately after inspection.</span></p>
-        <p><strong>Where do you serve?</strong><br><span class="muted">NC State students (on/near campus) to start.</span></p>
-      </div>
-      <div class="card">
-        <h3 class="section-title">Contact</h3>
-        <p class="muted">Email: <a href="mailto:wash@wolf-wash.com">wash@wolf-wash.com</a></p>
-      </div>
-    </section>
+      {/* Pricing (unchanged copy) */}
+      <section id="pricing" className="bg-slate-50 border-y border-slate-200">
+        <div className="mx-auto max-w-6xl px-4 py-16">
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Simple pricing</h2>
+          <div className="mt-8 grid lg:grid-cols-3 gap-6 items-stretch">
+            {/* Per-bag card */}
+            <div className="rounded-3xl border border-slate-200 p-8 bg-white shadow-sm flex flex-col">
+              <h3 className="text-xl font-bold">Per Bag</h3>
+              <p className="mt-3 text-5xl font-extrabold tracking-tight">$35<span className="text-lg font-medium text-slate-500"> / bag</span></p>
+              <ul className="mt-6 space-y-2 text-slate-700">
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> Cold wash, tumble dry, neatly folded</li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> Washed together inside your bag</li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> No bedding or large items unless quoted separately</li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> Friday pickup → Sunday delivery</li>
+              </ul>
+              <div className="mt-6 text-sm text-slate-500">No next-day or same-day add-ons offered. Transparent & consistent.</div>
+              <button onClick={()=>{ setRoute('schedule'); setFlowStep('choose'); }} className="mt-auto inline-flex items-center justify-center rounded-2xl bg-slate-900 text-white px-5 py-3 font-semibold hover:opacity-90">Schedule Pickup</button>
+            </div>
 
-    <footer>
-      <div class="container" style="padding:0">
-        © <span id="yr"></span> wolf-wash • All rights reserved
-      </div>
-    </footer>
-  </main>
+            {/* Roommates bundle */}
+            <div className="rounded-3xl border border-slate-900 p-8 bg-white shadow-lg flex flex-col relative overflow-hidden">
+              <span className="absolute right-4 top-4 rounded-full bg-slate-900 text-white text-xs px-2 py-1">Most Popular</span>
+              <div className="flex items-center gap-2">
+                <Users className="w-6 h-6"/>
+                <h3 className="text-xl font-bold">Roommates Bundle</h3>
+              </div>
+              <p className="mt-3 text-slate-600">Group rate when you schedule the same pickup/drop-off spot.</p>
+              <ul className="mt-6 space-y-2 text-slate-700">
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> 2–3 bags: <span className="font-semibold">$32 / bag</span></li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> 4+ bags: <span className="font-semibold">$30 / bag</span></li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> One pickup window, one drop-off location</li>
+              </ul>
+              <button onClick={()=>{ setRoute('schedule'); setFlowStep('choose'); setChoice('group'); }} className="mt-auto inline-flex items-center justify-center rounded-2xl border border-slate-900 px-5 py-3 font-semibold hover:bg-slate-900 hover:text-white transition">Get Group Rate</button>
+            </div>
 
-  <script>
-    const BAG_PRICE = 35;
-    const fmt = (n)=> n.toFixed(2);
-    const els = {
-      bags: document.getElementById('bags'),
-      total: document.getElementById('total'),
-      bagPrice: document.getElementById('bagPrice'),
-      bagPricePreview: document.getElementById('bagPricePreview'),
-    };
-    if (els.bagPrice) els.bagPrice.textContent = BAG_PRICE;
-    if (els.bagPricePreview) els.bagPricePreview.textContent = BAG_PRICE;
-    document.getElementById('yr').textContent = new Date().getFullYear();
-  </script>
-</body>
-</html>
+            {/* Notes */}
+            <div className="rounded-3xl border border-slate-200 p-8 bg-white shadow-sm">
+              <h3 className="text-xl font-bold">What to know</h3>
+              <ul className="mt-4 space-y-2 text-slate-700">
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> Our standard bag is included for new clients</li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> Clayton & nearby campuses / apartments</li>
+                <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 mt-0.5"/> Pay at delivery (card/Apple Pay/Google Pay) — optional PayPal prepay coming soon</li>
+              </ul>
+              <p className="mt-4 text-sm text-slate-500">Need bedding or oversized items? Ask for a custom quote.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="mx-auto max-w-6xl px-4 py-16">
+        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">FAQ</h2>
+        <div className="mt-8 grid md:grid-cols-2 gap-6">
+          <div className="rounded-3xl border border-slate-200 p-6">
+            <h3 className="font-semibold">Do I use my own bag?</h3>
+            <p className="mt-2 text-slate-600">No — we provide a ClassReady bag. We wash your items inside that bag on cold to keep things simple and safe.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 p-6">
+            <h3 className="font-semibold">What’s excluded at the per‑bag rate?</h3>
+            <p className="mt-2 text-slate-600">Bedding and oversized items like comforters, blankets, pillows, and rugs. We’re happy to quote these separately.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 p-6">
+            <h3 className="font-semibold">Any rush options?</h3>
+            <p className="mt-2 text-slate-600">No rush add‑ons — pickups are Friday evening, deliveries Sunday. Consistent schedule, consistent pricing.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 p-6">
+            <h3 className="font-semibold">Can I set weekly pickups?</h3>
+            <p className="mt-2 text-slate-600">Yes — you can opt into a recurring Friday pickup. Ask in your booking note.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact / Booking */}
+      <section id="contact" className="bg-slate-900 text-white">
+        <div className="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Book your pickup</h2>
+            <p className="mt-3 text-slate-300">Tell us your building, preferred Friday time window, and whether you want the roommates bundle.</p>
+            <div className="mt-6 space-y-2 text-slate-200 text-sm">
+              <p><span className="font-semibold">Service area:</span> Clayton, NC & nearby campus housing</p>
+              <p><span className="font-semibold">Schedule:</span> Friday evening pickup → Sunday delivery</p>
+            </div>
+          </div>
+          <form className="bg-white text-slate-900 rounded-3xl p-6 border border-slate-200 shadow-sm" onSubmit={(e)=>{e.preventDefault(); handleEmailSubmit();}}>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">Name</label>
+                <input className="rounded-xl border border-slate-300 px-3 py-2" placeholder="First & Last" value={form.name} onChange={(e)=>setForm({...form, name:e.target.value})}/>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">Phone</label>
+                <input className="rounded-xl border border-slate-300 px-3 py-2" placeholder="(###) ###-####" value={form.phone} onChange={(e)=>setForm({...form, phone:e.target.value})}/>
+              </div>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <label className="text-sm font-medium">Pickup address</label>
+                <input className="rounded-xl border border-slate-300 px-3 py-2" placeholder="Dorm/Apt + address" value={form.address} onChange={(e)=>setForm({...form, address:e.target.value})}/>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">Friday window</label>
+                <select className="rounded-xl border border-slate-300 px-3 py-2" value={form.window} onChange={(e)=>setForm({...form, window:e.target.value})}>
+                  <option>5–6:30pm</option>
+                  <option>6:30–8pm</option>
+                  <option>8–9:30pm</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">Bags</label>
+                <input type="number" min={1} max={8} className="rounded-xl border border-slate-300 px-3 py-2" value={form.bags} onChange={(e)=>setForm({...form, bags: Number(e.target.value)})}/>
+              </div>
+              <div className="flex items-center gap-2 mt-6">
+                <input id="roommates" type="checkbox" className="w-4 h-4" checked={form.roommatesBundle} onChange={(e)=>setForm({...form, roommatesBundle: e.target.checked})}/>
+                <label htmlFor="roommates" className="text-sm">Roommates bundle (group rate)</label>
+              </div>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <label className="text-sm font-medium">Notes</label>
+                <textarea className="rounded-xl border border-slate-300 px-3 py-2" rows={3} placeholder="Anything we should know?" value={form.notes} onChange={(e)=>setForm({...form, notes:e.target.value})}/>
+              </div>
+            </div>
+            <button type="submit" className="mt-4 w-full rounded-2xl bg-slate-900 text-white px-4 py-3 font-semibold">
+              Email My Request
+            </button>
+            <p className="mt-3 text-xs text-slate-500">This opens your email app with details pre-filled. We’ll text to confirm your slot.</p>
+          </form>
+        </div>
+      </section>
+    </>
+  );
+
+  const SchedulePage = () => (
+    <>
+      {/* Step indicator */}
+      <section className="bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
+        <div className="mx-auto max-w-6xl px-4 py-10">
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Schedule a Pickup</h2>
+          <p className="mt-2 text-slate-600">Choose your pickup type, fill out the form, then head to payment (coming soon).</p>
+          <div className="mt-6 flex items-center gap-2 text-sm text-slate-600">
+            <span className={`px-3 py-1 rounded-full border ${flowStep==='choose'?'bg-slate-900 text-white border-slate-900':'border-slate-300'}`}>1. Choose</span>
+            <span>→</span>
+            <span className={`px-3 py-1 rounded-full border ${flowStep==='form'?'bg-slate-900 text-white border-slate-900':'border-slate-300'}`}>2. Form</span>
+            <span>→</span>
+            <span className={`px-3 py-1 rounded-full border ${flowStep==='payment'?'bg-slate-900 text-white border-slate-900':'border-slate-300'}`}>3. Payment</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Step content */}
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        {flowStep === 'choose' && (
+          <div className="grid md:grid-cols-3 gap-6">
+            <button onClick={()=>{ setChoice('single'); setFlowStep('form'); }} className="rounded-3xl border border-slate-200 p-6 text-left hover:border-slate-900">
+              <h3 className="text-lg font-semibold">Single Pickup</h3>
+              <p className="mt-2 text-slate-600">One-time Friday pickup → Sunday delivery.</p>
+            </button>
+            <button onClick={()=>{ setChoice('repeat'); setFlowStep('form'); }} className="rounded-3xl border border-slate-200 p-6 text-left hover:border-slate-900">
+              <h3 className="text-lg font-semibold">Repeat Weekly</h3>
+              <p className="mt-2 text-slate-600">Recurring Friday pickups. Cancel anytime.</p>
+            </button>
+            <button onClick={()=>{ setChoice('group'); setForm({...form, roommatesBundle:true}); setFlowStep('form'); }} className="rounded-3xl border border-slate-200 p-6 text-left hover:border-slate-900">
+              <h3 className="text-lg font-semibold">Group / Roommates</h3>
+              <p className="mt-2 text-slate-600">Bundle pricing when roommates share pickup/drop-off.</p>
+            </button>
+          </div>
+        )}
+
+        {flowStep === 'form' && (
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="rounded-3xl border border-slate-200 p-6 bg-white shadow-sm">
+              <h3 className="text-xl font-bold">Your details</h3>
+              <form className="mt-4 grid sm:grid-cols-2 gap-4" onSubmit={(e)=>{e.preventDefault(); setFlowStep('payment');}}>
+                <div className="flex flex-col gap-1 sm:col-span-2">
+                  <label className="text-sm font-medium">Pickup type</label>
+                  <input className="rounded-xl border border-slate-300 px-3 py-2 bg-slate-50" value={(choice||'single').toUpperCase()} readOnly />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Name</label>
+                  <input className="rounded-xl border border-slate-300 px-3 py-2" value={form.name} onChange={(e)=>setForm({...form, name:e.target.value})} placeholder="First & Last"/>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Phone</label>
+                  <input className="rounded-xl border border-slate-300 px-3 py-2" value={form.phone} onChange={(e)=>setForm({...form, phone:e.target.value})} placeholder="(###) ###-####"/>
+                </div>
+                <div className="flex flex-col gap-1 sm:col-span-2">
+                  <label className="text-sm font-medium">Pickup address</label>
+                  <input className="rounded-xl border border-slate-300 px-3 py-2" value={form.address} onChange={(e)=>setForm({...form, address:e.target.value})} placeholder="Dorm/Apt + address"/>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Friday window</label>
+                  <select className="rounded-xl border border-slate-300 px-3 py-2" value={form.window} onChange={(e)=>setForm({...form, window:e.target.value})}>
+                    <option>5–6:30pm</option>
+                    <option>6:30–8pm</option>
+                    <option>8–9:30pm</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">Bags</label>
+                  <input type="number" min={1} max={8} className="rounded-xl border border-slate-300 px-3 py-2" value={form.bags} onChange={(e)=>setForm({...form, bags:Number(e.target.value)})}/>
+                </div>
+                <div className="flex items-center gap-2 sm:col-span-2 mt-2">
+                  <input id="rm" type="checkbox" className="w-4 h-4" checked={form.roommatesBundle} onChange={(e)=>setForm({...form, roommatesBundle:e.target.checked})}/>
+                  <label htmlFor="rm" className="text-sm">Roommates bundle (group rate)</label>
+                </div>
+                <div className="flex flex-col gap-1 sm:col-span-2">
+                  <label className="text-sm font-medium">Notes</label>
+                  <textarea className="rounded-xl border border-slate-300 px-3 py-2" rows={3} value={form.notes} onChange={(e)=>setForm({...form, notes:e.target.value})} placeholder="Access instructions, gate code, etc."/>
+                </div>
+                <div className="sm:col-span-2 flex gap-3">
+                  <button type="button" onClick={()=>setFlowStep('choose')} className="rounded-2xl border border-slate-300 px-4 py-2 font-semibold">← Back</button>
+                  <button type="submit" className="rounded-2xl bg-slate-900 text-white px-4 py-2 font-semibold">Continue to Payment</button>
+                </div>
+              </form>
+            </div>
+            <div className="rounded-3xl border border-slate-200 p-6">
+              <h4 className="font-semibold">What you’ll pay</h4>
+              <ul className="mt-2 text-slate-600 text-sm space-y-1">
+                <li>Per-bag rate: $35/bag</li>
+                <li>Roommates bundle: 2–3 bags $32/bag, 4+ bags $30/bag</li>
+                <li>No bedding/large items unless quoted separately</li>
+                <li>Friday pickup → Sunday delivery</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {flowStep === 'payment' && (
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 rounded-3xl border border-slate-200 p-6 bg-white shadow-sm">
+              <h3 className="text-xl font-bold">Payment (coming soon)</h3>
+              <p className="mt-2 text-slate-600">We’re adding PayPal next. For now, click “Email My Request” to send us your details and we’ll confirm your pickup & payment method.</p>
+              <div className="mt-6">
+                <button onClick={handleEmailSubmit} className="rounded-2xl bg-slate-900 text-white px-5 py-3 font-semibold">Email My Request</button>
+                <button onClick={()=>setFlowStep('form')} className="ml-3 rounded-2xl border border-slate-300 px-5 py-3 font-semibold">← Back to Form</button>
+              </div>
+            </div>
+            <div className="rounded-3xl border border-slate-200 p-6">
+              <h4 className="font-semibold">Order summary</h4>
+              <div className="mt-3 text-sm text-slate-600 space-y-1">
+                <p>Pickup type: <span className="font-medium">{choice ?? 'single'}</span></p>
+                <p>Bags: <span className="font-medium">{form.bags}</span></p>
+                <p>Est. subtotal: <span className="font-medium">{(()=>{
+                  const bags = form.bags || 1;
+                  let per = 35;
+                  if (form.roommatesBundle) {
+                    if (bags >= 4) per = 30; else if (bags >=2) per = 32; else per = 35;
+                  }
+                  return `$${bags*per}`;
+                })()}</span></p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-white text-slate-800">
+      <Header />
+      {route === 'home' ? <HomePage /> : <SchedulePage />}
+      {/* Footer */}
+      <footer className="border-t border-slate-200">
+        <div className="mx-auto max-w-6xl px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-slate-500">© {new Date().getFullYear()} ClassReady Laundry — Clayton, NC</p>
+          <div className="text-sm text-slate-600 flex items-center gap-4">
+            <a href="tel:+1-919-000-0000" className="hover:text-slate-950">Call</a>
+            <a href="mailto:hello@classreadylaundry.com" className="hover:text-slate-950">Email</a>
+            <a href="#" className="hover:text-slate-950">Instagram</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
