@@ -5,9 +5,9 @@ import { CheckCircle2, CalendarDays, Truck, Users, Sparkles, Package, Snowflake,
 // Edit copy right in-place; all sections are modular for quick tweaks.
 
 export default function StudentLaundrySite() {
-  const [route, setRoute] = React.useState<'home' | 'schedule'>('home');
-  const [flowStep, setFlowStep] = React.useState<'choose' | 'form' | 'payment'>('choose');
-  const [choice, setChoice] = React.useState<'single' | 'repeat' | 'group' | null>(null);
+  const [route, setRoute] = React.useState('home');
+  const [flowStep, setFlowStep] = React.useState('choose');
+  const [choice, setChoice] = React.useState(null);
 
   // Booking form state (shared across pages)
   const [form, setForm] = React.useState({
