@@ -235,126 +235,117 @@
   </main>
 
   <script>
-    // --- Constants & small helpers ---
-    const BAG_PRICE = 35;
-    const nowYear = new Date().getFullYear();
-    document.getElementById('yr').textContent = nowYear;
-    const bagPriceEl = document.getElementById('bagPrice');
-    const bagPreviewEl = document.getElementById('bagPricePreview');
-    if (bagPriceEl) bagPriceEl.textContent = BAG_PRICE;
-    if (bagPreviewEl) bagPreviewEl.textContent = BAG_PRICE;
+    // Wrap everything to ensure DOM is ready before wiring
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Constants & small helpers ---
+      const BAG_PRICE = 35;
+      const qs = (sel)=>document.querySelector(sel);
+      const on = (sel, evt, fn)=>{ const el = qs(sel); if (el) el.addEventListener(evt, fn); };
+      const show = (sel)=>{ const el = qs(sel); if (el) el.classList.remove('hidden'); };
+      const hide = (sel)=>{ const el = qs(sel); if (el) el.classList.add('hidden'); };
+      const setStepUI = (step)=>{
+        ['choose','form','payment'].forEach(s=>{
+          const el = qs(`#step-${s}`); if(!el) return; el.classList.toggle('active', s===step);
+        });
+      };
 
-    const qs = (sel)=>document.querySelector(sel);
-    const show = (id)=> qs(id).classList.remove('hidden');
-    const hide = (id)=> qs(id).classList.add('hidden');
-    const setStepUI = (step)=>{
-      ['choose','form','payment'].forEach(s=>{
-        const tag = `#step-${s}`; const el = qs(tag); if(!el) return; el.classList.toggle('active', s===step);
-      });
-    };
+      // Set initial text content safely
+      const yrEl = qs('#yr'); if (yrEl) yrEl.textContent = String(new Date().getFullYear());
+      const bagPriceEl = qs('#bagPrice'); if (bagPriceEl) bagPriceEl.textContent = String(BAG_PRICE);
+      const bagPreviewEl = qs('#bagPricePreview'); if (bagPreviewEl) bagPreviewEl.textContent = String(BAG_PRICE);
 
-    // --- Tiny hash router (home vs schedule) ---
-    const route = ()=>{
-      const hash = location.hash || '';
-      const isSchedule = hash.startsWith('#schedule');
-      // Views
-      const vHome = qs('#view-home');
-      const vSched = qs('#view-schedule');
-      if (isSchedule){ hide('#view-home'); show('#view-schedule'); }
-      else { show('#view-home'); hide('#view-schedule'); }
+      // --- Tiny hash router (home vs schedule) ---
+      const route = ()=>{
+        const hash = location.hash || '';
+        const isSchedule = hash.startsWith('#schedule');
+        // Views
+        if (isSchedule){ hide('#view-home'); show('#view-schedule'); }
+        else { show('#view-home'); hide('#view-schedule'); }
 
-      // Steps inside schedule
-      if (isSchedule){
-        const step = hash.split('/')[1] || 'choose';
-        if (step==='choose') { show('#sched-choose'); hide('#sched-form'); hide('#sched-payment'); setStepUI('choose'); }
-        if (step==='form')   { hide('#sched-choose'); show('#sched-form'); hide('#sched-payment'); setStepUI('form'); }
-        if (step==='payment'){ hide('#sched-choose'); hide('#sched-form'); show('#sched-payment'); setStepUI('payment'); renderSummary(); }
-      }
-    };
-    window.addEventListener('hashchange', route);
+        // Steps inside schedule
+        if (isSchedule){
+          const step = (hash.split('/')[1] || 'choose').toLowerCase();
+          if (step==='choose') { show('#sched-choose'); hide('#sched-form'); hide('#sched-payment'); setStepUI('choose'); }
+          if (step==='form')   { hide('#sched-choose'); show('#sched-form'); hide('#sched-payment'); setStepUI('form'); }
+          if (step==='payment'){ hide('#sched-choose'); hide('#sched-form'); show('#sched-payment'); setStepUI('payment'); renderSummary(); }
+        }
+      };
+      window.addEventListener('hashchange', route);
 
-    // --- Schedule state ---
-    let pickupType = 'SINGLE';
-    const formState = {
-      name:'', phone:'', addr:'', window:'5–6:30pm', bags:1, group:false, notes:''
-    };
+      // --- Schedule state ---
+      let pickupType = 'SINGLE';
+      const formState = { name:'', phone:'', addr:'', window:'5–6:30pm', bags:1, group:false, notes:'' };
 
-    // Choose buttons
-    qs('#opt-single').addEventListener('click', ()=>{ pickupType='SINGLE'; qs('#fType').value='SINGLE'; location.hash = '#schedule/form'; });
-    qs('#opt-repeat').addEventListener('click', ()=>{ pickupType='REPEAT'; qs('#fType').value='REPEAT'; location.hash = '#schedule/form'; });
-    qs('#opt-group').addEventListener('click', ()=>{ pickupType='GROUP'; qs('#fType').value='GROUP'; qs('#fGroup').checked = true; location.hash = '#schedule/form'; });
+      // Ensure CTA pushes the right hash AND triggers route immediately
+      on('#ctaSchedule', 'click', (e)=>{ e.preventDefault(); location.hash = '#schedule/choose'; route(); });
+      on('#backHome', 'click', (e)=>{ e.preventDefault(); location.hash = ''; route(); });
 
-    // Form wiring
-    const bookingForm = qs('#bookingForm');
-    const syncFormState = ()=>{
-      formState.name = qs('#fName').value.trim();
-      formState.phone = qs('#fPhone').value.trim();
-      formState.addr = qs('#fAddr').value.trim();
-      formState.window = qs('#fWindow').value;
-      formState.bags = Math.max(1, parseInt(qs('#fBags').value || '1',10));
-      formState.group = qs('#fGroup').checked;
-      formState.notes = qs('#fNotes').value.trim();
-    };
-    bookingForm.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      syncFormState();
-      location.hash = '#schedule/payment';
-    });
-    qs('#btnBackToChoose').addEventListener('click', ()=>{ location.hash = '#schedule/choose'; });
+      // Choose buttons (defensive checks)
+      on('#opt-single', 'click', ()=>{ pickupType='SINGLE'; const t=qs('#fType'); if(t) t.value='SINGLE'; location.hash = '#schedule/form'; route(); });
+      on('#opt-repeat', 'click', ()=>{ pickupType='REPEAT'; const t=qs('#fType'); if(t) t.value='REPEAT'; location.hash = '#schedule/form'; route(); });
+      on('#opt-group',  'click', ()=>{ pickupType='GROUP'; const t=qs('#fType'); if(t) t.value='GROUP'; const g=qs('#fGroup'); if(g) g.checked = true; location.hash = '#schedule/form'; route(); });
 
-    // Payment placeholder
-    qs('#btnBackToForm').addEventListener('click', ()=>{ location.hash = '#schedule/form'; });
-    const renderSummary = ()=>{
-      const bags = formState.bags || 1;
-      let per = 35;
-      if (formState.group) {
-        if (bags >= 4) per = 30; else if (bags >=2) per = 32; else per = 35;
-      }
-      const subtotal = bags * per;
-      const lines = [
-        `Pickup type: ${pickupType}`,
-        `Name: ${formState.name || '—'}`,
-        `Phone: ${formState.phone || '—'}`,
-        `Address: ${formState.addr || '—'}`,
-        `Friday window: ${formState.window}`,
-        `Bags: ${bags} @ $${per}/bag`,
-        `Roommates bundle: ${formState.group ? 'Yes' : 'No'}`,
-        `Estimated subtotal: $${subtotal}`
-      ];
-      qs('#summary').textContent = lines.join(' • ');
-    };
+      // Form wiring
+      const syncFormState = ()=>{
+        formState.name = (qs('#fName')?.value || '').trim();
+        formState.phone = (qs('#fPhone')?.value || '').trim();
+        formState.addr = (qs('#fAddr')?.value || '').trim();
+        formState.window = (qs('#fWindow')?.value || '5–6:30pm');
+        formState.bags = Math.max(1, parseInt(qs('#fBags')?.value || '1',10));
+        formState.group = !!qs('#fGroup')?.checked;
+        formState.notes = (qs('#fNotes')?.value || '').trim();
+      };
 
-    // Email fallback (no backend yet)
-    qs('#btnEmail').addEventListener('click', ()=>{
-      syncFormState();
-      const bags = formState.bags || 1;
-      let per = 35;
-      if (formState.group) {
-        if (bags >= 4) per = 30; else if (bags >=2) per = 32; else per = 35;
-      }
-      const subtotal = bags * per;
-      const subject = encodeURIComponent(`New ${pickupType} pickup request`);
-      const bodyLines = [
-        `Pickup type: ${pickupType}`,
-        `Name: ${formState.name}`,
-        `Phone: ${formState.phone}`,
-        `Address: ${formState.addr}`,
-        `Friday window: ${formState.window}`,
-        `Bags: ${bags} @ $${per}/bag (est $${subtotal})`,
-        `Roommates bundle: ${formState.group ? 'Yes' : 'No'}`,
-        `Notes: ${formState.notes || '—'}`,
-        `Source: wolf-wash.com schedule flow`
-      ];
-      const body = encodeURIComponent(bodyLines.join('
+      on('#bookingForm','submit',(e)=>{ e.preventDefault(); syncFormState(); location.hash = '#schedule/payment'; route(); });
+      on('#btnBackToChoose','click',()=>{ location.hash = '#schedule/choose'; route(); });
+
+      // Payment placeholder
+      on('#btnBackToForm','click',()=>{ location.hash = '#schedule/form'; route(); });
+      const renderSummary = ()=>{
+        const bags = formState.bags || 1;
+        let per = 35;
+        if (formState.group) { per = (bags>=4)?30 : (bags>=2)?32 : 35; }
+        const subtotal = bags * per;
+        const lines = [
+          `Pickup type: ${pickupType}`,
+          `Name: ${formState.name || '—'}`,
+          `Phone: ${formState.phone || '—'}`,
+          `Address: ${formState.addr || '—'}`,
+          `Friday window: ${formState.window}`,
+          `Bags: ${bags} @ $${per}/bag`,
+          `Roommates bundle: ${formState.group ? 'Yes' : 'No'}`,
+          `Estimated subtotal: $${subtotal}`
+        ];
+        const sumEl = qs('#summary'); if (sumEl) sumEl.textContent = lines.join(' • ');
+      };
+
+      // Email fallback (no backend yet)
+      on('#btnEmail','click',()=>{
+        syncFormState();
+        const bags = formState.bags || 1;
+        let per = 35;
+        if (formState.group) { per = (bags>=4)?30 : (bags>=2)?32 : 35; }
+        const subtotal = bags * per;
+        const subject = encodeURIComponent(`New ${pickupType} pickup request`);
+        const bodyLines = [
+          `Pickup type: ${pickupType}`,
+          `Name: ${formState.name}`,
+          `Phone: ${formState.phone}`,
+          `Address: ${formState.addr}`,
+          `Friday window: ${formState.window}`,
+          `Bags: ${bags} @ $${per}/bag (est $${subtotal})`,
+          `Roommates bundle: ${formState.group ? 'Yes' : 'No'}`,
+          `Notes: ${formState.notes || '—'}`,
+          `Source: wolf-wash.com schedule flow`
+        ];
+        const body = encodeURIComponent(bodyLines.join('
 '));
-      window.location.href = `mailto:wash@wolf-wash.com?subject=${subject}&body=${body}`;
+        window.location.href = `mailto:wash@wolf-wash.com?subject=${subject}&body=${body}`;
+      });
+
+      // Initial render
+      route();
     });
-
-    // Back to home
-    qs('#backHome').addEventListener('click', (e)=>{ e.preventDefault(); location.hash = ''; });
-
-    // Kick off first render based on current hash
-    route();
   </script>
 </body>
 </html>
