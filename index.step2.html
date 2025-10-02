@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>wolf-wash | Laundry Pickup & Delivery</title>
+  <meta name="description" content="NC State campus laundry pickup and delivery. Simple pricing by the bag.">
+  <link rel="preconnect" href="https://www.paypal.com" crossorigin>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --fg:#e5e7eb;        /* slate-200 */
+      --muted:#94a3b8;     /* slate-400 */
+      --brand:#CC0000;     /* NC State red */
+      --brand-dk:#A00000;  /* darker red */
+      --card:#111827;      /* gray-900 */
+      --accent:#ffffff;    /* white accents */
+      --line:#1f2937;      /* slate-800 */
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1000px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;background:linear-gradient(180deg, rgba(15,23,42,.95), rgba(15,23,42,.75));backdrop-filter: blur(8px);border-bottom:1px solid var(--line);z-index:30}
+    nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+    .logo .dot{width:12px;height:12px;background:var(--brand);border-radius:50%}
+    .pill{border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:#0b1222}
+    .grid{display:grid;gap:20px}
+    .hero{padding:56px 0 24px}
+    .hero h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:0 0 8px}
+    .subtitle{color:var(--muted);font-size:clamp(14px,2.2vw,18px)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
+    .btn:hover{background:var(--brand-dk)}
+    .btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:700;background:#0b1222;color:var(--fg)}
+    .section-title{font-size:22px;margin:8px 0 12px}
+    .two{grid-template-columns:repeat(2, minmax(0,1fr))}
+    @media (max-width:800px){.two{grid-template-columns:1fr}}
+    .price{font-size:36px;font-weight:900}
+    .muted{color:var(--muted)}
+    .hidden{display:none !important}
+    .step{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;margin-right:6px}
+    .step.active{background:#fff;color:#000;border-color:#fff}
+    .field{display:flex;flex-direction:column;gap:6px}
+    input,select,textarea{background:#0b1222;border:1px solid var(--line);border-radius:10px;color:var(--fg);padding:10px}
+    input[type="number"]{max-width:130px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+  </style>
+  <!-- Leaving the PayPal SDK include for later wiring -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD" defer></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo"><span class="dot"></span> wolf-wash</div>
+        <div class="pill">NC State campus pickup • Fridays</div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HOME VIEW -->
+    <section id="view-home">
+      <section class="hero grid two">
+        <div>
+          <h1>Laundry pickup & delivery — priced by the bag.</h1>
+          <p class="subtitle">Flat-rate wash-and-fold. We provide the bag. No hidden fees. Cancel anytime.</p>
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+            <a href="#plans" class="btn" id="ctaSchedule">Schedule a pickup</a>
+            <a class="badge" href="#pricing">$<span id="bagPricePreview">35</span>/bag • roommate group rates</a>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="section-title">How it works</h3>
+          <ol class="muted" style="line-height:1.7;margin:0;padding-left:18px">
+            <li>Choose one-time or weekly plan.</li>
+            <li>Pickup on <strong>Friday evening</strong>.</li>
+            <li>Delivery on <strong>Sunday</strong> — ready for your next week of classes.</li>
+          </ol>
+          <div style="margin-top:12px" class="badge"><span class="ok">✓</span> Cold wash in your provided bag • No bedding at per‑bag rate</div>
+        </div>
+      </section>
+
+      <section id="pricing" class="grid two">
+        <div class="card">
+          <h3 class="section-title">Simple pricing</h3>
+          <div class="price">$<span id="bagPrice">35</span><span class="muted" style="font-size:16px">/bag</span></div>
+          <p class="muted">We provide the bag. Bedding and large items quoted separately.</p>
+          <ul class="muted" style="line-height:1.7">
+            <li>Weekly Friday pickup, Sunday delivery</li>
+            <li>No same-day or next-day options</li>
+            <li>Washed cold as a single bag (no mixing with other customers)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Roommate group rate</h3>
+          <p class="muted">Same address & time. Great for dorms and shared apartments.</p>
+          <ul class="muted" style="line-height:1.7">
+            <li><strong>2–3 bags</strong>: $32/bag</li>
+            <li><strong>4+ bags</strong>: $30/bag</li>
+            <li>Friday pickup • Sunday delivery</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="grid two" style="margin-top:20px">
+        <div class="card">
+          <h3 class="section-title">FAQ</h3>
+          <p><strong>Do you handle bedding?</strong><br><span class="muted">Quoted separately after inspection.</span></p>
+          <p><strong>Where do you serve?</strong><br><span class="muted">NC State students (on/near campus) to start.</span></p>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Contact</h3>
+          <p class="muted">Email: <a href="mailto:wash@wolf-wash.com">wash@wolf-wash.com</a></p>
+        </div>
+      </section>
+
+      <footer style="margin-top:20px">
+        © <span id="yr"></span> wolf-wash • All rights reserved
+      </footer>
+    </section>
+
+
+    <!-- PLANS VIEW (new "second page") -->
+    <section id="view-plans" class="hidden">
+      <div class="row" style="align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h2 class="section-title" style="margin:0">Choose your plan</h2>
+        <a href="#" class="btn-ghost" id="backFromPlans">← Back to home</a>
+      </div>
+
+      <section class="grid two">
+        <div class="card">
+          <h3 class="section-title">Simple pricing</h3>
+          <div class="price">$<span id="bagPricePlans">35</span><span class="muted" style="font-size:16px">/bag</span></div>
+          <p class="muted">We provide the bag. Bedding and large items quoted separately.</p>
+          <ul class="muted" style="line-height:1.7">
+            <li>Weekly Friday pickup, Sunday delivery</li>
+            <li>No same-day or next-day options</li>
+            <li>Washed cold as a single bag (no mixing with other customers)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Roommate group rate</h3>
+          <p class="muted">Same address & time. Great for dorms and shared apartments.</p>
+          <ul class="muted" style="line-height:1.7">
+            <li><strong>2–3 bags</strong>: $32/bag</li>
+            <li><strong>4+ bags</strong>: $30/bag</li>
+            <li>Friday pickup • Sunday delivery</li>
+          </ul>
+        </div>
+      </section>
+
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <a href="#schedule/choose" class="btn" id="ctaSelectPlan">Select a plan</a>
+        <a class="btn-ghost" href="#schedule/choose">Skip & schedule</a>
+      </div>
+    </section>
+
+    <!-- SCHEDULE FLOW VIEW (simulated separate page via hash router) -->
+    <section id="view-schedule" class="hidden">
+      <div class="row" style="align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <span class="step" id="step-choose">1. Choose</span>
+          <span class="step" id="step-form">2. Form</span>
+          <span class="step" id="step-payment">3. Payment</span>
+        </div>
+        <a href="#" class="btn-ghost" id="backHome">← Back to home</a>
+      </div>
+
+      <!-- Step: Choose -->
+      <section id="sched-choose" class="grid two">
+        <button class="card" id="opt-single">
+          <h3 class="section-title">Single Pickup</h3>
+          <p class="muted">One-time Friday pickup → Sunday delivery.</p>
+        </button>
+        <button class="card" id="opt-repeat">
+          <h3 class="section-title">Repeat Weekly</h3>
+          <p class="muted">Set it and forget it. Cancel anytime.</p>
+        </button>
+        <button class="card" id="opt-group">
+          <h3 class="section-title">Group / Roommates</h3>
+          <p class="muted">Bundle pricing when roommates share pickup & drop-off.</p>
+        </button>
+      </section>
+
+      <!-- Step: Form -->
+      <section id="sched-form" class="hidden">
+        <div class="grid two">
+          <div class="card">
+            <h3 class="section-title">Your details</h3>
+            <form id="bookingForm">
+              <div class="field">
+                <label>Pickup type</label>
+                <input id="fType" value="SINGLE" readonly />
+              </div>
+              <div class="row">
+                <div class="field" style="flex:1">
+                  <label>Name</label>
+                  <input id="fName" placeholder="First & Last" required />
+                </div>
+                <div class="field" style="flex:1">
+                  <label>Phone</label>
+                  <input id="fPhone" placeholder="(###) ###-####" required />
+                </div>
+              </div>
+              <div class="field">
+                <label>Pickup address</label>
+                <input id="fAddr" placeholder="Dorm/Apt + address" required />
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label>Friday window</label>
+                  <select id="fWindow">
+                    <option>5–6:30pm</option>
+                    <option>6:30–8pm</option>
+                    <option>8–9:30pm</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Bags</label>
+                  <input id="fBags" type="number" min="1" max="8" value="1" />
+                </div>
+              </div>
+              <div class="row" style="align-items:center">
+                <input id="fGroup" type="checkbox" />
+                <label for="fGroup">Roommates bundle (group rate)</label>
+              </div>
+              <div class="field">
+                <label>Notes</label>
+                <textarea id="fNotes" rows="3" placeholder="Access instructions, gate code, etc."></textarea>
+              </div>
+              <div class="row" style="margin-top:10px">
+                <button type="button" class="btn-ghost" id="btnBackToChoose">← Back</button>
+                <button type="submit" class="btn">Continue to payment</button>
+              </div>
+            </form>
+          </div>
+          <div class="card">
+            <h4 class="section-title">What you’ll pay</h4>
+            <ul class="muted" style="line-height:1.7">
+              <li>Per-bag rate: $35/bag</li>
+              <li>Roommates bundle: 2–3 bags $32/bag, 4+ bags $30/bag</li>
+              <li>No bedding/large items unless quoted separately</li>
+              <li>Friday pickup → Sunday delivery</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step: Payment (placeholder) -->
+      <section id="sched-payment" class="hidden">
+        <div class="grid two">
+          <div class="card">
+            <h3 class="section-title">Payment (coming soon)</h3>
+            <p class="muted">We’re adding PayPal next. For now, click “Email my request” to send us your details — we’ll confirm your pickup & payment method by text/email.</p>
+            <div class="row" style="margin-top:12px">
+              <button class="btn" id="btnEmail">Email my request</button>
+              <button class="btn-ghost" id="btnBackToForm">← Back to form</button>
+            </div>
+          </div>
+          <div class="card">
+            <h4 class="section-title">Order summary</h4>
+            <p class="muted" id="summary"></p>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    // Wrap everything to ensure DOM is ready before wiring
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Constants & small helpers ---
+      const BAG_PRICE = 35;
+      const qs = (sel)=>document.querySelector(sel);
+      const on = (sel, evt, fn)=>{ const el = qs(sel); if (el) el.addEventListener(evt, fn); };
+      const show = (sel)=>{ const el = qs(sel); if (el) el.classList.remove('hidden'); };
+      const hide = (sel)=>{ const el = qs(sel); if (el) el.classList.add('hidden'); };
+      const setStepUI = (step)=>{
+        ['choose','form','payment'].forEach(s=>{
+          const el = qs(`#step-${s}`); if(!el) return; el.classList.toggle('active', s===step);
+        });
+      };
+
+      // Set initial text content safely
+      const yrEl = qs('#yr'); if (yrEl) yrEl.textContent = String(new Date().getFullYear());
+      const bagPriceEl = qs('#bagPrice'); if (bagPriceEl) bagPriceEl.textContent = String(BAG_PRICE);
+      const bagPreviewEl = qs('#bagPricePreview'); if (bagPreviewEl) bagPreviewEl.textContent = String(BAG_PRICE);
+
+      // --- Tiny hash router (home vs schedule) ---
+      const route = ()=>{
+        const hash = location.hash || '';
+        const isSchedule = hash.startsWith('#schedule');
+        const isPlans = hash.startsWith('#plans');
+        // Views
+        if (isPlans){ hide('#view-home'); show('#view-plans'); hide('#view-schedule'); }
+        else if (isPlans){ const p = document.querySelector('#bagPricePlans'); if (p) p.textContent = String(BAG_PRICE); }
+        if (isSchedule){ hide('#view-home'); hide('#view-plans'); show('#view-schedule'); }
+        else { show('#view-home'); hide('#view-plans'); hide('#view-schedule'); }
+
+        // Steps inside schedule
+        if (isPlans){ const p = document.querySelector('#bagPricePlans'); if (p) p.textContent = String(BAG_PRICE); }
+        if (isSchedule){
+          const step = (hash.split('/')[1] || 'choose').toLowerCase();
+          if (step==='choose') { show('#sched-choose'); hide('#sched-form'); hide('#sched-payment'); setStepUI('choose'); }
+          if (step==='form')   { hide('#sched-choose'); show('#sched-form'); hide('#sched-payment'); setStepUI('form'); }
+          if (step==='payment'){ hide('#sched-choose'); hide('#sched-form'); show('#sched-payment'); setStepUI('payment'); renderSummary(); }
+        }};
+      window.addEventListener('hashchange', route);
+
+      // --- Schedule state ---
+      let pickupType = 'SINGLE';
+      const formState = { name:'', phone:'', addr:'', window:'5–6:30pm', bags:1, group:false, notes:'' };
+
+      // Ensure CTA pushes the right hash AND triggers route immediately
+      on('#ctaSchedule', 'click', (e)=>{ e.preventDefault(); location.hash = '#schedule/choose'; route(); });
+      on('#backHome', 'click', (e)=>{ e.preventDefault(); location.hash = ''; route(); });
+      on('#backFromPlans', 'click', (e)=>{ e.preventDefault(); location.hash = ''; route(); });
+
+      // Choose buttons (defensive checks)
+      on('#opt-single', 'click', ()=>{ pickupType='SINGLE'; const t=qs('#fType'); if(t) t.value='SINGLE'; location.hash = '#schedule/form'; route(); });
+      on('#opt-repeat', 'click', ()=>{ pickupType='REPEAT'; const t=qs('#fType'); if(t) t.value='REPEAT'; location.hash = '#schedule/form'; route(); });
+      on('#opt-group',  'click', ()=>{ pickupType='GROUP'; const t=qs('#fType'); if(t) t.value='GROUP'; const g=qs('#fGroup'); if(g) g.checked = true; location.hash = '#schedule/form'; route(); });
+
+      // Form wiring
+      const syncFormState = ()=>{
+        formState.name = (qs('#fName')?.value || '').trim();
+        formState.phone = (qs('#fPhone')?.value || '').trim();
+        formState.addr = (qs('#fAddr')?.value || '').trim();
+        formState.window = (qs('#fWindow')?.value || '5–6:30pm');
+        formState.bags = Math.max(1, parseInt(qs('#fBags')?.value || '1',10));
+        formState.group = !!qs('#fGroup')?.checked;
+        formState.notes = (qs('#fNotes')?.value || '').trim();
+      };
+
+      on('#bookingForm','submit',(e)=>{ e.preventDefault(); syncFormState(); location.hash = '#schedule/payment'; route(); });
+      on('#btnBackToChoose','click',()=>{ location.hash = '#schedule/choose'; route(); });
+
+      // Payment placeholder
+      on('#btnBackToForm','click',()=>{ location.hash = '#schedule/form'; route(); });
+      const renderSummary = ()=>{
+        const bags = formState.bags || 1;
+        let per = 35;
+        if (formState.group) { per = (bags>=4)?30 : (bags>=2)?32 : 35; }
+        const subtotal = bags * per;
+        const lines = [
+          `Pickup type: ${pickupType}`,
+          `Name: ${formState.name || '—'}`,
+          `Phone: ${formState.phone || '—'}`,
+          `Address: ${formState.addr || '—'}`,
+          `Friday window: ${formState.window}`,
+          `Bags: ${bags} @ $${per}/bag`,
+          `Roommates bundle: ${formState.group ? 'Yes' : 'No'}`,
+          `Estimated subtotal: $${subtotal}`
+        ];
+        const sumEl = qs('#summary'); if (sumEl) sumEl.textContent = lines.join(' • ');
+      };
+
+      // Email fallback (no backend yet)
+      on('#btnEmail','click',()=>{
+        syncFormState();
+        const bags = formState.bags || 1;
+        let per = 35;
+        if (formState.group) { per = (bags>=4)?30 : (bags>=2)?32 : 35; }
+        const subtotal = bags * per;
+        const subject = encodeURIComponent(`New ${pickupType} pickup request`);
+        const bodyLines = [
+          `Pickup type: ${pickupType}`,
+          `Name: ${formState.name}`,
+          `Phone: ${formState.phone}`,
+          `Address: ${formState.addr}`,
+          `Friday window: ${formState.window}`,
+          `Bags: ${bags} @ $${per}/bag (est $${subtotal})`,
+          `Roommates bundle: ${formState.group ? 'Yes' : 'No'}`,
+          `Notes: ${formState.notes || '—'}`,
+          `Source: wolf-wash.com schedule flow`
+        ];
+        const body = encodeURIComponent(bodyLines.join('
+'));
+        window.location.href = `mailto:wash@wolf-wash.com?subject=${subject}&body=${body}`;
+      });
+
+      // Initial render
+      route();
+    });
+  </script>
+</body>
+</html>
