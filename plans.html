@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>wolf-wash | Laundry Pickup & Delivery</title>
+  <meta name="description" content="NC State campus laundry pickup and delivery. Simple pricing by the bag.">
+  <link rel="preconnect" href="https://www.paypal.com" crossorigin>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --fg:#e5e7eb;        /* slate-200 */
+      --muted:#94a3b8;     /* slate-400 */
+      --brand:#CC0000;     /* NC State red */
+      --brand-dk:#A00000;  /* darker red */
+      --card:#111827;      /* gray-900 */
+      --accent:#ffffff;    /* white accents */
+      --line:#1f2937;      /* slate-800 */
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1000px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;background:linear-gradient(180deg, rgba(15,23,42,.95), rgba(15,23,42,.75));backdrop-filter: blur(8px);border-bottom:1px solid var(--line);z-index:30}
+    nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+    .logo .dot{width:12px;height:12px;background:var(--brand);border-radius:50%}
+    .pill{border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:#0b1222}
+    .grid{display:grid;gap:20px}
+    .hero{padding:56px 0 24px}
+    .hero h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:0 0 8px}
+    .subtitle{color:var(--muted);font-size:clamp(14px,2.2vw,18px)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
+    .btn:hover{background:var(--brand-dk)}
+    .btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:700;background:#0b1222;color:var(--fg)}
+    .section-title{font-size:22px;margin:8px 0 12px}
+    .two{grid-template-columns:repeat(2, minmax(0,1fr))}
+    @media (max-width:800px){.two{grid-template-columns:1fr}}
+    .price{font-size:36px;font-weight:900}
+    .muted{color:var(--muted)}
+    .hidden{display:none !important}
+    .step{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;margin-right:6px}
+    .step.active{background:#fff;color:#000;border-color:#fff}
+    .field{display:flex;flex-direction:column;gap:6px}
+    input,select,textarea{background:#0b1222;border:1px solid var(--line);border-radius:10px;color:var(--fg);padding:10px}
+    input[type="number"]{max-width:130px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+  </style>
+  <!-- Leaving the PayPal SDK include for later wiring -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD" defer></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo"><span class="dot"></span> wolf-wash</div>
+        <div class="pill">NC State campus pickup • Fridays</div>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+    <!-- PLANS PAGE (separate file) -->
+    <section id="view-plans">
+      <div class="row" style="align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h2 class="section-title" style="margin:0">Choose your plan</h2>
+        <a href="index.html" class="btn-ghost">← Back to home</a>
+      </div>
+
+      <section class="grid two">
+        <div class="card">
+          <h3 class="section-title">Simple pricing</h3>
+          <div class="price">$<span id="bagPricePlans">35</span><span class="muted" style="font-size:16px">/bag</span></div>
+          <p class="muted">We provide the bag. Bedding and large items quoted separately.</p>
+          <ul class="muted" style="line-height:1.7">
+            <li>Weekly Friday pickup, Sunday delivery</li>
+            <li>No same-day or next-day options</li>
+            <li>Washed cold as a single bag (no mixing with other customers)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Roommate group rate</h3>
+          <p class="muted">Same address & time. Great for dorms and shared apartments.</p>
+          <ul class="muted" style="line-height:1.7">
+            <li><strong>2–3 bags</strong>: $32/bag</li>
+            <li><strong>4+ bags</strong>: $30/bag</li>
+            <li>Friday pickup • Sunday delivery</li>
+          </ul>
+        </div>
+      </section>
+
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <a href="index.html#schedule/choose" class="btn" id="ctaSelectPlan">Select a plan</a>
+        <a class="btn-ghost" href="index.html#schedule/choose">Skip & schedule</a>
+      </div>
+    </section>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){ 
+      var p = document.querySelector('#bagPricePlans'); 
+      if(p) p.textContent = '35'; 
+    });
+  </script>
+</body>
+</html>
